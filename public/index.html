@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>URL Shortener</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; max-width: 760px; }
+      h1 { margin: 0 0 0.5rem; }
+      p { margin: 0.25rem 0 1rem; color: #444; }
+      label { display: block; font-weight: 600; margin: 1rem 0 0.25rem; }
+      input { width: 100%; padding: 0.75rem; font-size: 1rem; }
+      button { margin-top: 0.75rem; padding: 0.75rem 1rem; font-size: 1rem; cursor: pointer; }
+      .card { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; }
+      .muted { color: #666; font-size: 0.95rem; }
+      .error { color: #b00020; }
+      .result { margin-top: 1rem; }
+      code { background: #f6f6f6; padding: 0.1rem 0.25rem; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <h1>URL Shortener</h1>
+    <p class="muted">Simple frontend to demonstrate the DevOps URL shortener API.</p>
+
+    <div class="card">
+      <label for="url">Long URL</label>
+      <input id="url" type="url" placeholder="https://example.com" />
+      <button id="shorten">Shorten</button>
+
+      <div id="status" class="result muted"></div>
+      <div id="error" class="result error"></div>
+      <div id="output" class="result"></div>
+    </div>
+
+    <script>
+      const urlInput = document.getElementById('url');
+      const btn = document.getElementById('shorten');
+      const statusEl = document.getElementById('status');
+      const errorEl = document.getElementById('error');
+      const outputEl = document.getElementById('output');
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function setError(text) {
+        errorEl.textContent = text;
+      }
+
+      function setOutput(html) {
+        outputEl.innerHTML = html;
+      }
+
+      btn.addEventListener('click', async () => {
+        setError('');
+        setOutput('');
+
+        const longUrl = urlInput.value.trim();
+        if (!longUrl) {
+          setError('Please enter a URL.');
+          return;
+        }
+
+        setStatus('Shortening...');
+
+        try {
+          const resp = await fetch('/api/shorten', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ url: longUrl })
+          });
+
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            throw new Error(data.error || 'Request failed');
+          }
+
+          setStatus('Done');
+          const shortUrl = data.short_url;
+          setOutput(
+            `<div><div><b>Short URL:</b> <a href="${shortUrl}" target="_blank" rel="noreferrer">${shortUrl}</a></div>` +
+            `<div><b>Code:</b> <code>${data.code}</code></div>` +
+            `<div class="muted">Env: ${data.environment} | Version: ${data.version} | Build: ${data.build || '-'}</div></div>`
+          );
+        } catch (err) {
+          setStatus('');
+          setError(err.message || String(err));
+        }
+      });
+    </script>
+  </body>
+</html>
