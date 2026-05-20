@@ -84,4 +84,5 @@ APP_ENV=dev npm start
 
 - Do **not** hardcode secrets. Use Jenkins Credentials and/or IAM instance roles.
 - Keep security groups minimal (only required inbound ports).
+- Security evidence checklist: see `docs/security.md`.
 - Take screenshots of Jenkins runs, AWS resources, and your architecture diagram.
