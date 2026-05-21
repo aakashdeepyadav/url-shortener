@@ -8,10 +8,16 @@ High-level steps (capture screenshots during setup):
 
 1. Launch an EC2 instance (Ubuntu) with port 8080 open from your IP
 2. SSH into the instance
-3. Install Java + Jenkins
+3. Install Java 21+ + Jenkins
 4. Open Jenkins UI and complete initial setup
 
 > If your course already provides Jenkins, skip installation and focus on pipeline configuration.
+
+Note: newer Jenkins releases require **Java 21+**. If Jenkins refuses to start with Java 17, install OpenJDK 21 and restart the service.
+
+## Troubleshooting
+
+- `apt-get update` fails with `NO_PUBKEY 7198F4B714ABFC68`: update the Jenkins repo key to `https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key` and re-run `apt-get update`.
 
 ## 2) Jenkins plugins to install
 
@@ -46,8 +52,8 @@ Recommended: **Multibranch Pipeline**
 >
 > Two options (pick one):
 >
-> 1) **Safer for security marks**: keep `8080` restricted to your IP, and use multibranch **periodic branch indexing** (scan) to detect changes.
-> 2) **Webhook demo**: temporarily allow `8080` from broader sources during the demo, then lock it back to your IP.
+> 1. **Safer for security marks**: keep `8080` restricted to your IP, and use multibranch **periodic branch indexing** (scan) to detect changes.
+> 2. **Webhook demo**: temporarily allow `8080` from broader sources during the demo, then lock it back to your IP.
 
 ## 5) Configure `Jenkinsfile`
 
