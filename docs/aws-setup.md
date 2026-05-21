@@ -62,6 +62,19 @@ node --version
 npm --version
 ```
 
+### Optional: automate installs using EC2 User Data
+
+If you want fewer manual steps, you can paste these scripts into **EC2 → Advanced details → User data** when launching instances:
+
+- Jenkins EC2: `scripts/aws/userdata_jenkins_ubuntu.sh`
+- DEV/PROD EC2: `scripts/aws/userdata_app_ubuntu.sh`
+
+After the instance boots, you can review output via:
+
+```bash
+sudo tail -n 200 /var/log/cloud-init-output.log
+```
+
 ## 4) S3 bucket (artifact storage)
 
 1. Create an S3 bucket (unique name)
