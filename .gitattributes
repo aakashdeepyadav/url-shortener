@@ -1,0 +1,3 @@
+# Ensure Linux/Jenkins-executed scripts keep LF line endings
+*.sh text eol=lf
+Jenkinsfile text eol=lf

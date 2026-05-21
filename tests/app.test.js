@@ -29,6 +29,10 @@ test('health endpoint', async (t) => {
   const resp = await fetch(`${base}/health`);
   assert.equal(resp.status, 200);
   assert.deepEqual(await resp.json(), { status: 'ok' });
+
+  assert.equal(resp.headers.get('x-content-type-options'), 'nosniff');
+  assert.equal(resp.headers.get('x-frame-options'), 'DENY');
+  assert.equal(resp.headers.get('x-powered-by'), null);
 });
 
 test('shorten → resolve → redirect increments hits', async (t) => {

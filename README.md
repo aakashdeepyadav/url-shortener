@@ -1,39 +1,23 @@
-# URL Shortener — DevOps Project (Jenkins + GitHub + AWS)
+# URL Shortener
 
-This is a minimal DevOps project designed to score **9–10/10** on the provided _DevOps Project Evaluation Rubrics (10 Marks)_.
+A small URL shortener service built with Node.js + Express.
 
-## What you will build
+It includes a Jenkins CI/CD pipeline (`Jenkinsfile`) and an EC2 deployment script (`scripts/deploy_remote.sh`) to support automated deployments (with optional artifact storage in S3).
 
-- A tiny **URL Shortener** (Node.js + Express) with:
+## Features
+
+- API endpoints:
   - `POST /api/shorten` (create a short code)
   - `GET /:code` (redirect)
   - `GET /api/resolve/:code` (resolve without redirect)
   - `GET /api/stats/:code` (hits)
   - `GET /health`
-  - `GET /ui` (simple frontend)
-- Unit tests (`node --test`)
-- A Jenkins pipeline (`Jenkinsfile`) that:
-  - checks out code
-  - installs dependencies
-  - runs tests
-  - packages a deployment artifact
-  - (optional) uploads the artifact to S3
-  - deploys to EC2 (DEV/PROD) based on branch (`develop` → DEV, `main` → PROD)
+  - `GET /api/version`
+- Minimal frontend at `GET /ui`
+- JSON file persistence with hit counting
+- Automated tests (`node --test`)
 
-## Step-by-step to score full marks
-
-1. Complete the rubric checklist: `docs/rubric-checklist.md`
-2. Fill project planning + sprint plan: `docs/planning.md`
-3. Use GitFlow-style workflow: `docs/git-workflow.md`
-4. Create AWS infra (VPC, SG, EC2, IAM, S3): `docs/aws-setup.md`
-5. Install/configure Jenkins + credentials: `docs/cicd-jenkins.md`
-6. Demonstrate Git workflow with PRs:
-   - `feature/*` → PR → `develop` (pipeline deploys to DEV)
-   - `develop` → PR → `main` (pipeline deploys to PROD)
-7. Capture required evidence + write report: `docs/submission-checklist.md` + `docs/report-template.md`
-8. Prepare viva: `docs/viva-prep.md`
-
-## Local run (Windows PowerShell)
+## Quickstart (Windows PowerShell)
 
 ```powershell
 cd url-shortener
@@ -54,7 +38,7 @@ Example shorten request:
 Invoke-RestMethod -Method Post -Uri http://localhost:5000/api/shorten -ContentType application/json -Body '{"url":"https://example.com"}'
 ```
 
-## Local run (Linux/macOS)
+## Quickstart (Linux/macOS)
 
 ```bash
 cd url-shortener
@@ -72,6 +56,30 @@ APP_ENV=dev npm start
 - `SHORT_CODE_LENGTH`: short code length (4–16, default: `6`)
 - `APP_VERSION` / `APP_BUILD`: set by Jenkins and exposed via `GET /api/version`
 
+## CI/CD and deployment
+
+- Pipeline: `Jenkinsfile`
+  - install deps → test → package → (optional) upload to S3 → deploy to EC2
+- Remote deploy script: `scripts/deploy_remote.sh`
+  - installs production deps
+  - writes a systemd service
+  - keeps data under `/opt/<app>/data`
+
+Recommended branch flow:
+
+- `feature/*` → PR → `develop` (deploy to DEV)
+- `develop` → PR → `main` (deploy to PROD)
+
+## Documentation
+
+- API: `docs/api.md`
+- Architecture: `docs/architecture.md`
+- AWS setup (VPC/SG/EC2/IAM/S3): `docs/aws-setup.md`
+- Jenkins setup: `docs/cicd-jenkins.md`
+- Deployment steps: `docs/deployment-steps.md`
+- Security: `docs/security.md`
+- Versioning: `docs/versioning.md`
+
 ## Key files
 
 - `src/app.js`: Express app (API + redirect + `/ui`)
@@ -80,8 +88,8 @@ APP_ENV=dev npm start
 - `Jenkinsfile`: CI/CD pipeline (assumes a Linux Jenkins agent)
 - `scripts/deploy_remote.sh`: runs on the target EC2 to install deps + start a systemd service
 
-## Important notes (for marks)
+## Security notes
 
-- Do **not** hardcode secrets. Use Jenkins Credentials and/or IAM instance roles.
+- Do not hardcode secrets. Use Jenkins Credentials and/or IAM instance roles.
 - Keep security groups minimal (only required inbound ports).
-- Take screenshots of Jenkins runs, AWS resources, and your architecture diagram.
+- See `docs/security.md` for the implemented controls and checklist.

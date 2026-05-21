@@ -41,6 +41,14 @@ Recommended: **Multibranch Pipeline**
 - Connect it to your GitHub repo
 - Add GitHub webhook so Jenkins triggers on push/PR
 
+> Important: For GitHub webhooks to work, GitHub must be able to reach your Jenkins URL.
+> If your Jenkins security group allows port 8080 only from **your IP**, webhooks will fail.
+>
+> Two options (pick one):
+>
+> 1) **Safer for security marks**: keep `8080` restricted to your IP, and use multibranch **periodic branch indexing** (scan) to detect changes.
+> 2) **Webhook demo**: temporarily allow `8080` from broader sources during the demo, then lock it back to your IP.
+
 ## 5) Configure `Jenkinsfile`
 
 Open `Jenkinsfile` and replace:
@@ -49,6 +57,24 @@ Open `Jenkinsfile` and replace:
 - `S3_BUCKET`
 - `DEV_HOST` and `PROD_HOST`
 - (if needed) branch names (`main`/`develop`)
+
+Alternative (recommended): set Jenkins environment variables instead of editing the file:
+
+- `AWS_REGION`
+- `S3_BUCKET` (optional)
+- `DEV_HOST`
+- `PROD_HOST`
+- `SSH_USER` (optional, default: `ubuntu`)
+- `SSH_CREDENTIALS_ID` (optional, default: `ec2-ssh-key`)
+
+Where to set them (pick one):
+
+- Jenkins **Manage Jenkins → System → Global properties → Environment variables**
+- Or at the **Folder** level (if you use folders)
+
+This keeps secrets out of the repo and avoids hardcoding hostnames.
+
+> Note: the pipeline uses Linux `sh` steps, so your Jenkins agent/controller should run on Linux.
 
 ## 6) What to demo (for full marks)
 

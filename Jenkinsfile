@@ -10,15 +10,18 @@ pipeline {
     APP_NAME = 'url-shortener'
     ARTIFACT_DIR = 'dist'
 
-    // ==== REQUIRED: update these for your AWS/Jenkins setup ====
-    AWS_REGION = 'CHANGEME'
-    S3_BUCKET = 'CHANGEME'
-    SSH_USER = 'ubuntu'
-    DEV_HOST = 'CHANGEME'
-    PROD_HOST = 'CHANGEME'
+    // ==== REQUIRED: configure these for your AWS/Jenkins setup ====
+    // You can either:
+    // 1) Replace the CHANGEME values here, OR
+    // 2) Set Jenkins environment variables with the same names (recommended)
+    AWS_REGION = "${env.AWS_REGION ?: 'CHANGEME'}"
+    S3_BUCKET = "${env.S3_BUCKET ?: 'CHANGEME'}"
+    SSH_USER = "${env.SSH_USER ?: 'ubuntu'}"
+    DEV_HOST = "${env.DEV_HOST ?: 'CHANGEME'}"
+    PROD_HOST = "${env.PROD_HOST ?: 'CHANGEME'}"
 
-    // Jenkins Credentials → "SSH Username with private key"
-    SSH_CREDENTIALS_ID = 'ec2-ssh-key'
+    // Jenkins Credentials → "SSH Username with private key" (ID can also be set via Jenkins env var)
+    SSH_CREDENTIALS_ID = "${env.SSH_CREDENTIALS_ID ?: 'ec2-ssh-key'}"
   }
 
   stages {
@@ -86,7 +89,12 @@ pipeline {
 
     stage('Upload Artifact to S3 (optional)') {
       when {
-        expression { return env.S3_BUCKET && env.S3_BUCKET != 'CHANGEME' }
+        expression {
+          return (
+            env.S3_BUCKET && env.S3_BUCKET != 'CHANGEME'
+            && env.AWS_REGION && env.AWS_REGION != 'CHANGEME'
+          )
+        }
       }
       steps {
         sh '''
@@ -112,7 +120,7 @@ pipeline {
           }
 
           if (!env.TARGET_HOST || env.TARGET_HOST == 'CHANGEME') {
-            error('Set DEV_HOST / PROD_HOST in Jenkinsfile before deploying.')
+            error('Set DEV_HOST / PROD_HOST (either in Jenkins env vars or in Jenkinsfile) before deploying.')
           }
         }
 

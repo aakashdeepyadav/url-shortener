@@ -86,6 +86,25 @@ function createApp(options = {}) {
   ensureStoreFile(storePath);
 
   const app = express();
+  app.disable('x-powered-by');
+
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+
+    if (req.path === '/ui') {
+      res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+      );
+    }
+
+    next();
+  });
   app.use(express.json({ limit: '32kb' }));
 
   app.get('/health', (_req, res) => {
@@ -114,6 +133,10 @@ function createApp(options = {}) {
 
     if (!isValidHttpUrl(longUrl)) {
       return res.status(400).json({ error: 'Invalid URL (must start with http/https)' });
+    }
+
+    if (longUrl.length > 2048) {
+      return res.status(400).json({ error: 'URL is too long' });
     }
 
     const store = readStore(storePath);

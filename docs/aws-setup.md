@@ -42,6 +42,39 @@ Notes:
 - Use the correct SG for each instance
 - Create/download a key pair to connect via SSH
 
+### Install Node.js on Jenkins + App instances (required)
+
+Your pipeline and deploy script expect **Node.js + npm** on:
+
+- Jenkins EC2 (to run `npm ci` + `npm test`)
+- DEV/PROD EC2 (to run the systemd service)
+
+On Ubuntu, one simple approach (Node 22 LTS):
+
+```bash
+sudo apt-get update -y
+sudo apt-get install -y ca-certificates curl
+
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+node --version
+npm --version
+```
+
+### Optional: automate installs using EC2 User Data
+
+If you want fewer manual steps, you can paste these scripts into **EC2 → Advanced details → User data** when launching instances:
+
+- Jenkins EC2: `scripts/aws/userdata_jenkins_ubuntu.sh`
+- DEV/PROD EC2: `scripts/aws/userdata_app_ubuntu.sh`
+
+After the instance boots, you can review output via:
+
+```bash
+sudo tail -n 200 /var/log/cloud-init-output.log
+```
+
 ## 4) S3 bucket (artifact storage)
 
 1. Create an S3 bucket (unique name)
