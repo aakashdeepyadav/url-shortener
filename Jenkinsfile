@@ -120,7 +120,7 @@ pipeline {
           }
 
           if (!env.TARGET_HOST || env.TARGET_HOST == 'CHANGEME') {
-            error('Set DEV_HOST / PROD_HOST in Jenkinsfile before deploying.')
+            error('Set DEV_HOST / PROD_HOST (either in Jenkins env vars or in Jenkinsfile) before deploying.')
           }
         }
 
