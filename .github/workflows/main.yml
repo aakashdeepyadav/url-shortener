@@ -1,0 +1,86 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Package application
+        run: |
+          mkdir -p release
+          tar -czf release/url-shortener.tgz --exclude=./.git --exclude=./node_modules .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: url-shortener-package
+          path: release/url-shortener.tgz
+
+  deploy-dev:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: url-shortener-package
+
+      - name: Deploy to DEV
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p /opt/url-shortener
+            tar -xzf url-shortener.tgz -C /opt/url-shortener
+            cd /opt/url-shortener
+            ./scripts/deploy_remote.sh
+
+  deploy-prod:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: url-shortener-package
+
+      - name: Deploy to PROD
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p /opt/url-shortener
+            tar -xzf url-shortener.tgz -C /opt/url-shortener
+            cd /opt/url-shortener
+            ./scripts/deploy_remote.sh

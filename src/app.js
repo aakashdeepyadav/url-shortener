@@ -88,6 +88,9 @@ function createApp(options = {}) {
   const app = express();
   app.disable('x-powered-by');
 
+  // Serve static files from 'public' directory
+  app.use(express.static(path.resolve(__dirname, '..', 'public')));
+
   app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
@@ -107,8 +110,19 @@ function createApp(options = {}) {
   });
   app.use(express.json({ limit: '32kb' }));
 
-  app.get('/health', (_req, res) => {
-    res.json({ status: 'ok' });
+  // Public health endpoint used by tests
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
+  // API health (more verbose)
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({
+      status: 'ok',
+      environment: appEnv,
+      version: appVersion,
+      build: appBuild,
+    });
   });
 
   app.get('/', (_req, res) => {
@@ -125,56 +139,42 @@ function createApp(options = {}) {
   });
 
   app.post('/api/shorten', (req, res) => {
-    const longUrl = typeof req.body?.url === 'string' ? req.body.url.trim() : '';
-
-    if (!longUrl) {
-      return res.status(400).json({ error: "Missing 'url'" });
+    const { url } = req.body ?? {};
+    if (!url) {
+      res.status(400).json({ error: 'URL is required' });
+      return;
     }
-
-    if (!isValidHttpUrl(longUrl)) {
-      return res.status(400).json({ error: 'Invalid URL (must start with http/https)' });
-    }
-
-    if (longUrl.length > 2048) {
-      return res.status(400).json({ error: 'URL is too long' });
+    if (!isValidHttpUrl(url)) {
+      res.status(400).json({ error: 'URL is not a valid HTTP URL' });
+      return;
     }
 
     const store = readStore(storePath);
-
-    let existingCode = null;
-    for (const [code, entry] of Object.entries(store.urls)) {
-      if (entry?.long_url === longUrl) {
-        existingCode = code;
-        break;
-      }
+    const existing = Object.entries(store.urls).find(([, v]) => v.long_url === url || v.url === url);
+    if (existing) {
+      const [code] = existing;
+      // normalize to long_url in response
+      res.status(200).json({
+        code,
+        long_url: store.urls[code].long_url ?? store.urls[code].url,
+        version: appVersion,
+        build: appBuild,
+      });
+      return;
     }
 
-    const createdAt = nowIso();
-
-    let code = existingCode;
-    if (!code) {
-      for (let i = 0; i < 20; i += 1) {
-        const candidate = generateCode(codeLength);
-        if (!store.urls[candidate]) {
-          store.urls[candidate] = { long_url: longUrl, created_at: createdAt, hits: 0 };
-          code = candidate;
-          break;
-        }
-      }
-
-      if (!code) {
-        return res.status(500).json({ error: 'Could not generate unique short code' });
-      }
-
-      writeStore(storePath, store);
+    let code = generateCode(codeLength);
+    while (store.urls[code]) {
+      code = generateCode(codeLength);
     }
 
-    const shortUrl = `${req.protocol}://${req.get('host')}/${code}`;
-    return res.status(201).json({
+    // store canonical field `long_url` and initialize hits
+    store.urls[code] = { long_url: url, created_at: nowIso(), hits: 0 };
+    writeStore(storePath, store);
+
+    res.status(201).json({
       code,
-      short_url: shortUrl,
-      long_url: longUrl,
-      environment: appEnv,
+      long_url: url,
       version: appVersion,
       build: appBuild,
     });

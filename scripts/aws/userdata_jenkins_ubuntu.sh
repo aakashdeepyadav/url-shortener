@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # EC2 User Data script for Jenkins server (Ubuntu)
-# Installs: Git, Node.js (22 LTS), AWS CLI, Java 17, Jenkins
+# Installs: Git, Node.js (22 LTS), AWS CLI, Java 21, Jenkins
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -17,9 +17,15 @@ apt-get install -y nodejs
 apt-get install -y awscli
 
 # Java + Jenkins
-apt-get install -y fontconfig openjdk-17-jre
+# Jenkins 2.5xx requires Java 21+.
+if ! apt-get install -y fontconfig openjdk-21-jre-headless; then
+  echo "ERROR: Java 21 is required for Jenkins, but openjdk-21-jre-headless is unavailable on this Ubuntu image." >&2
+  echo "Use an Ubuntu release that ships OpenJDK 21 (or install Java 21 via a supported source), then retry." >&2
+  exit 1
+fi
 
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | tee /usr/share/keyrings/jenkins-keyring.asc >/dev/null
+mkdir -p /usr/share/keyrings
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key | tee /usr/share/keyrings/jenkins-keyring.asc >/dev/null
 
 echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" \
   > /etc/apt/sources.list.d/jenkins.list

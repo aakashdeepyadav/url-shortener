@@ -69,6 +69,8 @@ If you want fewer manual steps, you can paste these scripts into **EC2 → Advan
 - Jenkins EC2: `scripts/aws/userdata_jenkins_ubuntu.sh`
 - DEV/PROD EC2: `scripts/aws/userdata_app_ubuntu.sh`
 
+Jenkins requires **Java 21+**, so use an Ubuntu image where `openjdk-21-jre-headless` is available (or install Java 21 via a supported source).
+
 After the instance boots, you can review output via:
 
 ```bash
