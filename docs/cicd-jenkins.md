@@ -41,6 +41,14 @@ Recommended: **Multibranch Pipeline**
 - Connect it to your GitHub repo
 - Add GitHub webhook so Jenkins triggers on push/PR
 
+> Important: For GitHub webhooks to work, GitHub must be able to reach your Jenkins URL.
+> If your Jenkins security group allows port 8080 only from **your IP**, webhooks will fail.
+>
+> Two options (pick one):
+>
+> 1) **Safer for security marks**: keep `8080` restricted to your IP, and use multibranch **periodic branch indexing** (scan) to detect changes.
+> 2) **Webhook demo**: temporarily allow `8080` from broader sources during the demo, then lock it back to your IP.
+
 ## 5) Configure `Jenkinsfile`
 
 Open `Jenkinsfile` and replace:
