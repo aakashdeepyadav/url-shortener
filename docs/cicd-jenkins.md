@@ -50,6 +50,24 @@ Open `Jenkinsfile` and replace:
 - `DEV_HOST` and `PROD_HOST`
 - (if needed) branch names (`main`/`develop`)
 
+Alternative (recommended): set Jenkins environment variables instead of editing the file:
+
+- `AWS_REGION`
+- `S3_BUCKET` (optional)
+- `DEV_HOST`
+- `PROD_HOST`
+- `SSH_USER` (optional, default: `ubuntu`)
+- `SSH_CREDENTIALS_ID` (optional, default: `ec2-ssh-key`)
+
+Where to set them (pick one):
+
+- Jenkins **Manage Jenkins → System → Global properties → Environment variables**
+- Or at the **Folder** level (if you use folders)
+
+This keeps secrets out of the repo and avoids hardcoding hostnames.
+
+> Note: the pipeline uses Linux `sh` steps, so your Jenkins agent/controller should run on Linux.
+
 ## 6) What to demo (for full marks)
 
 1. Show GitHub PR merge to `develop`
