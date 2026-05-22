@@ -30,7 +30,7 @@ jobs:
 
       - name: Package application
         run: |
-          tar -czf url-shortener.tgz --exclude=.git --exclude=node_modules .
+          git archive --format=tar.gz -o url-shortener.tgz HEAD
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
