@@ -30,14 +30,13 @@ jobs:
 
       - name: Package application
         run: |
-          mkdir -p release
-          tar -czf release/url-shortener.tgz --exclude=./.git --exclude=./node_modules .
+          tar -czf url-shortener.tgz --exclude=.git --exclude=node_modules .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: url-shortener-package
-          path: release/url-shortener.tgz
+          path: url-shortener.tgz
 
   deploy-dev:
     needs: build-and-test
