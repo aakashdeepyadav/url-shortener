@@ -25,6 +25,34 @@ Build and demonstrate an industry-style DevOps workflow:
   4. Merge to `develop` → deploy to DEV
   5. Merge `develop` to `main` → deploy to PROD
 
+## CI/CD Pipeline (what to present)
+
+- Source control: GitHub repository with branch-based flow
+- CI trigger: push/PR to the repo
+- Jenkins stages:
+  1. Checkout
+  2. Install Dependencies (`npm ci`)
+  3. Test (`npm test`)
+  4. Package release artifact
+  5. Optional upload to S3
+  6. Deploy to EC2 over SSH
+- Deployment mapping:
+  - `develop` → DEV EC2
+  - `main` → PROD EC2
+- Release behavior:
+  - artifact contains the app code and production dependencies
+  - EC2 deploy starts the systemd service using the packaged release
+
+## Demo Script (simple order)
+
+1. Explain the problem statement and goal
+2. Show the architecture diagram and AWS resources
+3. Walk through the branch strategy and CI/CD stages
+4. Show Jenkins console output
+5. Show the app running on EC2
+6. Open `/health`, `/ui`, and `/api/version`
+7. Close with security controls and lessons learned
+
 ## Sprint plan (suggested)
 
 ### Sprint 0 (Planning)
@@ -42,14 +70,16 @@ Build and demonstrate an industry-style DevOps workflow:
 ### Sprint 2 (CI/CD)
 
 - Install/configure Jenkins
-- Create Jenkins pipeline stages (test + package)
-- Add automated deployment step
+- Create Jenkins pipeline stages (install, test, package, deploy)
+- Add optional S3 artifact upload
+- Link branch flow to DEV/PROD deployment
 
 ### Sprint 3 (AWS + Deployment)
 
 - Create VPC + subnets + security groups
 - Launch EC2 instances (Jenkins + DEV + PROD)
 - Deploy and validate app access
+- Verify app URLs, systemd service, and firewall rules
 
 ### Sprint 4 (Security + Documentation + Demo)
 
@@ -69,6 +99,7 @@ Build and demonstrate an industry-style DevOps workflow:
 ## Definition of Done
 
 - Tests passing (`npm test`)
-- Jenkins pipeline is green
+- Jenkins pipeline is green and documented
 - Deployments visible on EC2 (service running + browser output)
+- CI/CD flow can be explained clearly in the viva
 - Documentation updated (report + screenshots)
