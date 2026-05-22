@@ -75,6 +75,8 @@
         <div id="result"></div>
     </div>
     <script>
+        const apiOrigin = window.location.protocol === 'file:' ? 'http://localhost:5000' : window.location.origin;
+
         document.getElementById('shorten-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const url = document.getElementById('url-input').value;
@@ -82,14 +84,14 @@
             resultDiv.textContent = 'Shortening...';
 
             try {
-                const response = await fetch('/api/shorten', {
+                const response = await fetch(`${apiOrigin}/api/shorten`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url })
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    const shortUrl = `${window.location.origin}/${data.code}`;
+                    const shortUrl = `${apiOrigin}/${data.code}`;
                     resultDiv.innerHTML = `Your short URL: <a href="${shortUrl}" target="_blank">${shortUrl}</a>`;
                 } else {
                     resultDiv.innerHTML = `<span class="error">Error: ${data.error || 'Could not shorten URL.'}</span>`;
