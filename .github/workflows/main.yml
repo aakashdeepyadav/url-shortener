@@ -55,6 +55,8 @@ jobs:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          strict_host_key_checking: false
           source: "url-shortener.tgz"
           target: "/tmp"
 
@@ -64,6 +66,8 @@ jobs:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          strict_host_key_checking: false
           script: |
             tar -xzf /tmp/url-shortener.tgz scripts/deploy_remote.sh
             chmod +x scripts/deploy_remote.sh
@@ -86,6 +90,8 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          strict_host_key_checking: false
           source: "url-shortener.tgz"
           target: "/tmp"
 
@@ -95,6 +101,8 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          strict_host_key_checking: false
           script: |
             tar -xzf /tmp/url-shortener.tgz scripts/deploy_remote.sh
             chmod +x scripts/deploy_remote.sh

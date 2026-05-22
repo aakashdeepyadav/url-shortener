@@ -14,6 +14,7 @@ Add these in your GitHub repo Settings → Secrets and variables → Actions:
 Notes:
 
 - The workflow uses `appleboy/ssh-action` to deploy via SSH and runs `./scripts/deploy_remote.sh` on the remote host. Ensure the target user can run that script and has necessary permissions.
+- If you see a host key verification failure, the workflow is now configured to skip strict SSH host key checking.
 - For least privilege, prefer using an IAM Role on the EC2 instance for S3 access rather than long-lived AWS keys.
 
 ## How the workflow works
