@@ -88,6 +88,10 @@ function createApp(options = {}) {
   const app = express();
   app.disable('x-powered-by');
 
+  app.get('/', (_req, res) => {
+    res.redirect(302, '/ui');
+  });
+
   // Serve static files from 'public' directory
   app.use(express.static(path.resolve(__dirname, '..', 'public')));
 
@@ -119,15 +123,6 @@ function createApp(options = {}) {
   app.get('/api/health', (req, res) => {
     res.status(200).json({
       status: 'ok',
-      environment: appEnv,
-      version: appVersion,
-      build: appBuild,
-    });
-  });
-
-  app.get('/', (_req, res) => {
-    res.json({
-      message: 'URL Shortener API',
       environment: appEnv,
       version: appVersion,
       build: appBuild,
@@ -191,7 +186,7 @@ function createApp(options = {}) {
 
     return res.json({
       code,
-      long_url: entry.long_url,
+      long_url: entry.long_url ?? entry.url,
       environment: appEnv,
       version: appVersion,
       build: appBuild,
@@ -209,7 +204,7 @@ function createApp(options = {}) {
 
     return res.json({
       code,
-      long_url: entry.long_url,
+      long_url: entry.long_url ?? entry.url,
       created_at: entry.created_at,
       hits: Number(entry.hits ?? 0),
       environment: appEnv,
@@ -235,7 +230,7 @@ function createApp(options = {}) {
     store.urls[code] = entry;
     writeStore(storePath, store);
 
-    return res.redirect(302, entry.long_url);
+    return res.redirect(302, entry.long_url ?? entry.url);
   });
 
   return app;
