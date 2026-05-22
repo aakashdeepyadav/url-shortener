@@ -62,7 +62,6 @@ APP_ENV=dev npm start
   - install deps → test → package → (optional) upload to S3 → deploy to EC2
 - Remote deploy script: `scripts/deploy_remote.sh`
   - uses the bundled Node.js runtime included in the release artifact
-  - installs production deps
   - writes a systemd service
   - keeps data under `/opt/<app>/data`
 

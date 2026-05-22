@@ -62,17 +62,7 @@ pipeline {
       steps {
         sh '''
           set -eu
-          mkdir -p ${ARTIFACT_DIR}
-
-          tar -czf ${ARTIFACT_DIR}/${ARTIFACT_NAME} \
-            package.json \
-            package-lock.json \
-            VERSION \
-            src \
-            public \
-            scripts
-
-          echo "Created ${ARTIFACT_DIR}/${ARTIFACT_NAME}"
+          bash scripts/package_release.sh ${ARTIFACT_DIR} ${ARTIFACT_NAME}
         '''
       }
     }

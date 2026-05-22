@@ -24,7 +24,6 @@ This is the flow you should explain during your demo.
    - updates `/opt/<app>/current` symlink
    - keeps persistent data in `/opt/<app>/data/urls.json` (via `DB_PATH`)
    - uses the bundled Node.js runtime from the release artifact
-   - installs production dependencies in the release (`npm ci --omit=dev`)
    - writes a systemd service (Node.js) and restarts it
 
 ## What to screenshot

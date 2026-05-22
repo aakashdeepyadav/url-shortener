@@ -43,23 +43,6 @@ get_node_bin() {
   exit 1
 }
 
-get_npm_bin() {
-  local bundled_npm="${CURRENT_LINK}/.runtime/node/bin/npm"
-
-  if [[ -x "$bundled_npm" ]]; then
-    echo "$bundled_npm"
-    return
-  fi
-
-  if have_cmd npm; then
-    command -v npm
-    return
-  fi
-
-  log "No npm runtime found in the release artifact and no system npm is available. Rebuild the artifact with scripts/package_release.sh."
-  exit 1
-}
-
 fetch_artifact_if_s3() {
   local source="$1"
 
@@ -113,14 +96,9 @@ main() {
   chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 
   local node_bin
-  local npm_bin
   local node_bin_dir
   node_bin="$(get_node_bin)"
-  npm_bin="$(get_npm_bin)"
   node_bin_dir="$(dirname "$node_bin")"
-
-  log "Installing production dependencies"
-  sudo -u "$APP_USER" env PATH="$node_bin_dir:$PATH" bash -lc "cd '${CURRENT_LINK}' && '${npm_bin}' ci --omit=dev"
 
   local service_file
   service_file="/etc/systemd/system/${SERVICE_NAME}.service"

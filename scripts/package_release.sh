@@ -52,12 +52,19 @@ ensure_node_runtime() {
 
 main() {
   mkdir -p "$ARTIFACT_DIR"
+
+  if [[ ! -d node_modules ]]; then
+    log "node_modules is missing. Run npm ci --omit=dev before packaging."
+    exit 1
+  fi
+
   ensure_node_runtime
 
   tar -czf "${ARTIFACT_DIR}/${ARTIFACT_NAME}" \
     package.json \
     package-lock.json \
     VERSION \
+    node_modules \
     src \
     public \
     scripts \
