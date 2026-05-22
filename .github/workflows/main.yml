@@ -49,14 +49,21 @@ jobs:
         with:
           name: url-shortener-package
 
+      - name: Set up SSH key
+        run: |
+          mkdir -p /tmp/ssh
+          cat > /tmp/ssh/id_rsa <<EOF
+${{ secrets.SSH_PRIVATE_KEY }}
+EOF
+          chmod 600 /tmp/ssh/id_rsa
+
       - name: Copy artifact to server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_path: /tmp/ssh/id_rsa
           port: 22
-          strict_host_key_checking: false
           source: "url-shortener.tgz"
           target: "/tmp"
 
@@ -65,9 +72,8 @@ jobs:
         with:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_path: /tmp/ssh/id_rsa
           port: 22
-          strict_host_key_checking: false
           script: |
             tar -xzf /tmp/url-shortener.tgz scripts/deploy_remote.sh
             chmod +x scripts/deploy_remote.sh
@@ -84,14 +90,21 @@ jobs:
         with:
           name: url-shortener-package
 
+      - name: Set up SSH key
+        run: |
+          mkdir -p /tmp/ssh
+          cat > /tmp/ssh/id_rsa <<EOF
+${{ secrets.SSH_PRIVATE_KEY }}
+EOF
+          chmod 600 /tmp/ssh/id_rsa
+
       - name: Copy artifact to server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_path: /tmp/ssh/id_rsa
           port: 22
-          strict_host_key_checking: false
           source: "url-shortener.tgz"
           target: "/tmp"
 
@@ -100,9 +113,8 @@ jobs:
         with:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key_path: /tmp/ssh/id_rsa
           port: 22
-          strict_host_key_checking: false
           script: |
             tar -xzf /tmp/url-shortener.tgz scripts/deploy_remote.sh
             chmod +x scripts/deploy_remote.sh
