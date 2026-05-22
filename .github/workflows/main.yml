@@ -47,8 +47,8 @@ jobs:
         run: |
           mkdir -p /tmp/ssh
           cat > /tmp/ssh/id_rsa <<'EOF'
-${{ secrets.SSH_PRIVATE_KEY }}
-EOF
+          ${{ secrets.SSH_PRIVATE_KEY }}
+          EOF
           chmod 600 /tmp/ssh/id_rsa
 
       - name: Copy artifact to server
