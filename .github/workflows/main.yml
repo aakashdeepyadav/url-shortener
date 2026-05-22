@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-      - develop
-  pull_request:
-    branches:
-      - main
-      - develop
 
 jobs:
   build-and-test:
@@ -38,52 +33,10 @@ jobs:
           name: url-shortener-package
           path: url-shortener.tgz
 
-  deploy-dev:
-    needs: build-and-test
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    environment: development
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: url-shortener-package
-
-      - name: Set up SSH key
-        run: |
-          mkdir -p /tmp/ssh
-          cat > /tmp/ssh/id_rsa <<EOF
-${{ secrets.SSH_PRIVATE_KEY }}
-EOF
-          chmod 600 /tmp/ssh/id_rsa
-
-      - name: Copy artifact to server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.DEV_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key_path: /tmp/ssh/id_rsa
-          port: 22
-          source: "url-shortener.tgz"
-          target: "/tmp"
-
-      - name: Deploy to DEV
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEV_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key_path: /tmp/ssh/id_rsa
-          port: 22
-          script: |
-            tar -xzf /tmp/url-shortener.tgz scripts/deploy_remote.sh
-            chmod +x scripts/deploy_remote.sh
-            sudo APP_VERSION="${{ github.sha }}" APP_BUILD="${{ github.run_number }}" ./scripts/deploy_remote.sh /tmp/url-shortener.tgz url-shortener dev
-
-  deploy-prod:
+  deploy:
     needs: build-and-test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -93,7 +46,7 @@ EOF
       - name: Set up SSH key
         run: |
           mkdir -p /tmp/ssh
-          cat > /tmp/ssh/id_rsa <<EOF
+          cat > /tmp/ssh/id_rsa <<'EOF'
 ${{ secrets.SSH_PRIVATE_KEY }}
 EOF
           chmod 600 /tmp/ssh/id_rsa
@@ -108,7 +61,7 @@ EOF
           source: "url-shortener.tgz"
           target: "/tmp"
 
-      - name: Deploy to PROD
+      - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PROD_HOST }}

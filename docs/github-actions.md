@@ -6,15 +6,14 @@ This project now uses GitHub Actions for CI/CD. The workflow file is at `.github
 
 Add these in your GitHub repo Settings → Secrets and variables → Actions:
 
-- `SSH_PRIVATE_KEY` — the PEM private key (no passphrase) for SSH access to your EC2 instances.
+- `SSH_PRIVATE_KEY` — the PEM private key (no passphrase) for SSH access to your EC2 instance.
 - `SSH_USER` — SSH username (e.g. `ubuntu`).
-- `DEV_HOST` — public IP or DNS of your DEV EC2 instance.
-- `PROD_HOST` — public IP or DNS of your PROD EC2 instance.
+- `PROD_HOST` — public IP or DNS of your EC2 instance.
 
 Notes:
 
 - The workflow uses `appleboy/ssh-action` to deploy via SSH and runs `./scripts/deploy_remote.sh` on the remote host. Ensure the target user can run that script and has necessary permissions.
-- If you see a host key verification failure, the workflow is now configured to skip strict SSH host key checking.
+- This repository is now configured for a single-server deploy on `main` only.
 - For least privilege, prefer using an IAM Role on the EC2 instance for S3 access rather than long-lived AWS keys.
 
 ## How the workflow works
