@@ -61,6 +61,7 @@ APP_ENV=dev npm start
 - Pipeline: `Jenkinsfile`
   - install deps → test → package → (optional) upload to S3 → deploy to EC2
 - Remote deploy script: `scripts/deploy_remote.sh`
+  - bootstraps Node.js 22 LTS on Ubuntu/Debian hosts if `node`/`npm` are missing
   - installs production deps
   - writes a systemd service
   - keeps data under `/opt/<app>/data`

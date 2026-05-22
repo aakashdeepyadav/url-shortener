@@ -26,6 +26,24 @@ have_cmd() {
   command -v "$1" >/dev/null 2>&1
 }
 
+install_node_if_missing() {
+  if have_cmd node && have_cmd npm; then
+    return
+  fi
+
+  if ! have_cmd apt-get; then
+    log "node and npm are required on the target server, and automatic installation is only supported on Ubuntu/Debian hosts."
+    log "Install Node.js 22 LTS manually and retry."
+    exit 1
+  fi
+
+  log "node/npm not found. Installing Node.js 22 LTS on the target server."
+  apt-get update -y
+  apt-get install -y ca-certificates curl
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+  apt-get install -y nodejs
+}
+
 fetch_artifact_if_s3() {
   local source="$1"
 
@@ -52,15 +70,7 @@ main() {
     exit 1
   fi
 
-  if ! have_cmd node; then
-    log "node is required on the target server. Install Node.js (recommended: v22 LTS) and retry."
-    exit 1
-  fi
-
-  if ! have_cmd npm; then
-    log "npm is required on the target server. Install npm (usually bundled with Node.js) and retry."
-    exit 1
-  fi
+  install_node_if_missing
 
   local artifact_path
   artifact_path="$(fetch_artifact_if_s3 "$ARTIFACT_SOURCE")"

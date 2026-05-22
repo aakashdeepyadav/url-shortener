@@ -42,12 +42,13 @@ Notes:
 - Use the correct SG for each instance
 - Create/download a key pair to connect via SSH
 
-### Install Node.js on Jenkins + App instances (required)
+### Install Node.js on Jenkins + App instances
 
-Your pipeline and deploy script expect **Node.js + npm** on:
+Your pipeline expects **Node.js + npm** on:
 
-- Jenkins EC2 (to run `npm ci` + `npm test`)
-- DEV/PROD EC2 (to run the systemd service)
+- Jenkins EC2 (required, to run `npm ci` + `npm test`)
+
+The app deploy script can bootstrap Node.js 22 LTS automatically on Ubuntu/Debian EC2 instances if it is missing, but preinstalling Node is still fine if you want the first deploy to be faster.
 
 On Ubuntu, one simple approach (Node 22 LTS):
 
