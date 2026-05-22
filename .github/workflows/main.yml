@@ -33,7 +33,7 @@ jobs:
           tar -czf url-shortener.tgz --exclude=.git --exclude=node_modules .
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: url-shortener-package
           path: url-shortener.tgz
@@ -45,7 +45,7 @@ jobs:
     environment: development
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: url-shortener-package
 
@@ -80,7 +80,7 @@ jobs:
     environment: production
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: url-shortener-package
 
