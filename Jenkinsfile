@@ -29,17 +29,7 @@ pipeline {
       steps {
         checkout scm
       }
-    }
-
-    stage('Metadata') {
-      steps {
-        script {
-          env.APP_SEMVER = readFile('VERSION').trim()
-          env.GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-          env.APP_BUILD = "${env.BUILD_NUMBER}-${env.GIT_SHA}"
-          env.APP_VERSION = "${env.APP_SEMVER}+${env.APP_BUILD}"
-
-          def branchName = env.BRANCH_NAME ?: 'local'
+          bash scripts/package_release.sh ${ARTIFACT_DIR} ${ARTIFACT_NAME}
           env.SAFE_BRANCH_NAME = branchName.replaceAll('[^A-Za-z0-9._-]+', '-')
           env.ARTIFACT_NAME = "${env.APP_NAME}-${env.APP_SEMVER}-${env.SAFE_BRANCH_NAME}-${env.BUILD_NUMBER}.tgz"
         }

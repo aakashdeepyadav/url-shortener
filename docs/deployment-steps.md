@@ -23,7 +23,7 @@ This is the flow you should explain during your demo.
    - extracts artifact to `/opt/<app>/releases/<timestamp>`
    - updates `/opt/<app>/current` symlink
    - keeps persistent data in `/opt/<app>/data/urls.json` (via `DB_PATH`)
-   - bootstraps Node.js 22 LTS on Ubuntu/Debian hosts if needed
+   - uses the bundled Node.js runtime from the release artifact
    - installs production dependencies in the release (`npm ci --omit=dev`)
    - writes a systemd service (Node.js) and restarts it
 

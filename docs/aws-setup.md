@@ -48,7 +48,7 @@ Your pipeline expects **Node.js + npm** on:
 
 - Jenkins EC2 (required, to run `npm ci` + `npm test`)
 
-The app deploy script can bootstrap Node.js 22 LTS automatically on Ubuntu/Debian EC2 instances if it is missing, but preinstalling Node is still fine if you want the first deploy to be faster.
+The app EC2 instance no longer needs Node preinstalled if you deploy the bundled release artifact. The release includes its own Linux Node.js runtime, so the EC2 host only needs `sudo`, `tar`, and outbound access to receive the artifact over SSH.
 
 On Ubuntu, one simple approach (Node 22 LTS):
 

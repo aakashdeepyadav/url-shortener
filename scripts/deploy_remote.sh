@@ -26,22 +26,38 @@ have_cmd() {
   command -v "$1" >/dev/null 2>&1
 }
 
-install_node_if_missing() {
-  if have_cmd node && have_cmd npm; then
+get_node_bin() {
+  local bundled_node="${CURRENT_LINK}/.runtime/node/bin/node"
+
+  if [[ -x "$bundled_node" ]]; then
+    echo "$bundled_node"
     return
   fi
 
-  if ! have_cmd apt-get; then
-    log "node and npm are required on the target server, and automatic installation is only supported on Ubuntu/Debian hosts."
-    log "Install Node.js 22 LTS manually and retry."
-    exit 1
+  if have_cmd node; then
+    command -v node
+    return
   fi
 
-  log "node/npm not found. Installing Node.js 22 LTS on the target server."
-  apt-get update -y
-  apt-get install -y ca-certificates curl
-  curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-  apt-get install -y nodejs
+  log "No Node.js runtime found in the release artifact and no system node is available. Rebuild the artifact with scripts/package_release.sh."
+  exit 1
+}
+
+get_npm_bin() {
+  local bundled_npm="${CURRENT_LINK}/.runtime/node/bin/npm"
+
+  if [[ -x "$bundled_npm" ]]; then
+    echo "$bundled_npm"
+    return
+  fi
+
+  if have_cmd npm; then
+    command -v npm
+    return
+  fi
+
+  log "No npm runtime found in the release artifact and no system npm is available. Rebuild the artifact with scripts/package_release.sh."
+  exit 1
 }
 
 fetch_artifact_if_s3() {
@@ -70,8 +86,6 @@ main() {
     exit 1
   fi
 
-  install_node_if_missing
-
   local artifact_path
   artifact_path="$(fetch_artifact_if_s3 "$ARTIFACT_SOURCE")"
 
@@ -98,8 +112,15 @@ main() {
 
   chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 
+  local node_bin
+  local npm_bin
+  local node_bin_dir
+  node_bin="$(get_node_bin)"
+  npm_bin="$(get_npm_bin)"
+  node_bin_dir="$(dirname "$node_bin")"
+
   log "Installing production dependencies"
-  sudo -u "$APP_USER" env PATH="$PATH" bash -lc "cd '${CURRENT_LINK}' && npm ci --omit=dev"
+  sudo -u "$APP_USER" env PATH="$node_bin_dir:$PATH" bash -lc "cd '${CURRENT_LINK}' && '${npm_bin}' ci --omit=dev"
 
   local service_file
   service_file="/etc/systemd/system/${SERVICE_NAME}.service"
@@ -121,7 +142,7 @@ Environment=PORT=${PORT}
 Environment=DB_PATH=${DB_PATH}
 Environment=APP_VERSION=${APP_VERSION}
 Environment=APP_BUILD=${APP_BUILD}
-ExecStart=/usr/bin/env node ${CURRENT_LINK}/src/server.js
+ExecStart=${node_bin} ${CURRENT_LINK}/src/server.js
 Restart=always
 RestartSec=3
 

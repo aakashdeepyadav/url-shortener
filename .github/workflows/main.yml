@@ -25,13 +25,13 @@ jobs:
 
       - name: Package application
         run: |
-          git archive --format=tar.gz -o url-shortener.tgz HEAD
+          bash scripts/package_release.sh dist url-shortener.tgz
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: url-shortener-package
-          path: url-shortener.tgz
+          path: dist/url-shortener.tgz
 
   deploy:
     needs: build-and-test
